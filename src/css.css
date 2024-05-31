@@ -1,0 +1,36 @@
+table, th, td {
+    background-color: rgb(78, 200, 30);
+    border: 1px solid black;
+}
+ 
+th{
+    background-color: rgb(224, 224, 224);    
+}
+ 
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #574949;
+  }
+ 
+  li {
+    float: left;
+  }
+ 
+  li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+ 
+  li a:hover:not(.active) {
+    background-color: #ff0000;
+  }
+ 
+  .active {
+    background-color: #04AA6D;
+  }

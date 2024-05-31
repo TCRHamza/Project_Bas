@@ -1,0 +1,18 @@
+{
+    "name": "hamza/project_bas",
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bas\\classes\\": "src/classes/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hmidoushvdb",
+            "email": "137945301+TCRHamza@users.noreply.github.com"
+        }
+    ],
+    "require": {}
+}
