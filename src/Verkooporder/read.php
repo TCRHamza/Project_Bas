@@ -13,14 +13,15 @@
         <nav>
         <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="./Verkooporder/ReadVerkoop.php">Verkooporder overzicht</a></li>
+            <li><a href="./Verkooporder/read.php">Verkooporder overzicht</a></li>
             <li><a href="./Klant/read.php">Klant overzicht</a></li>
             <li><a href="./Klant/insert.php">Toevoegen nieuwe klant</a></li>
-            <li><a href="./Artikelen/ReadArtikel.php">Artikel overzicht</a></li>
+            <li><a href="./Artikelen/Read.php">Artikel overzicht</a></li>
+            <li><a href="./Verkooporder/read.php">Verkooporder toevoegen</a></li>
         </ul>
     </nav>
     </header>
-    <a href='InsertVerkooporder.php'>Toevoegen nieuwe verkooporder</a><br><br>
+    <a href='insert.php'>Toevoegen nieuwe verkooporder</a><br><br>
     <?php
 
     // Autoloader classes via composer

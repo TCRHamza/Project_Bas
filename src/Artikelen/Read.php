@@ -19,7 +19,7 @@
             <li><a href="../index.html">Home</a></li>
             <li><a href="../Klant/read.php">Klant overzicht</a></li>
             <li><a href="../Klant/insert.php">Toevoegen nieuwe klant</a></li>
-            <li><a href="../Artikelen/ReadArtikel.php">Artikel overzicht</a></li>
+            <li><a href="../Artikelen/Read.php">Artikel overzicht</a></li>
         </ul>
     </nav>
     </header>

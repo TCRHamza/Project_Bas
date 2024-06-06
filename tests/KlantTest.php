@@ -1,5 +1,5 @@
 <?php
-// auteur: studentnaam
+// auteur: hmidoush
 // functie: unitests class Klant
 
 use PHPUnit\Framework\TestCase;
