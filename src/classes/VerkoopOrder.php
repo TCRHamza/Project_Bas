@@ -9,13 +9,18 @@ use PDOException;
 include_once "functions.php";
  
 class Verkooporder extends Database {
-    public $orderId;
+    public $verkOrdId;
     public $orderDatum;
     public $artikelNaam; // Gewijzigd om artikelnamen op te slaan in plaats van artikel-IDs
     public $orderStatus;
     public $orderTotaal;
     private $table_name = "verkooporder"; // Ensure table name matches your database
- 
+    
+    // Methode om de databaseverbinding in te stellen
+    public function setConnection($conn) {
+        self::$conn = $conn;
+    }
+
     // Methoden
    
     /**
@@ -37,7 +42,7 @@ class Verkooporder extends Database {
     public function getVerkooporders() : array {
         try {
             // Voer een query uit om verkooporders op te halen, waarbij artikelnamen en klantnamen worden opgehaald
-            $sql = "SELECT v.*, a.artOmschrijving AS artNaam, k.klantNaam
+            $sql = "SELECT v.*, a.artOmschrijving AS artNaam, k.klantId
                     FROM $this->table_name v
                     INNER JOIN artikel a ON v.artId = a.artId
                     INNER JOIN klant k ON v.klantId = k.klantId";
@@ -66,7 +71,7 @@ class Verkooporder extends Database {
  
         // Voeg de kolomnamen boven de tabel
         $txt .= "<thead><tr>";
-        $txt .= "<th>klantNaam</th>";
+        $txt .= "<th>klantId</th>";
         $txt .= "<th>artNaam</th>";
         $txt .= "<th>verkOrdDatum</th>";
         $txt .= "<th>verkOrdBestAantal</th>";
@@ -77,7 +82,7 @@ class Verkooporder extends Database {
         $txt .= "<tbody>";
         foreach($lijst as $row){
             $txt .= "<tr>";
-            $txt .=  "<td>" . htmlspecialchars($row["klantNaam"] ?? '') . "</td>";
+            $txt .=  "<td>" . htmlspecialchars($row["klantId"] ?? '') . "</td>";
             $txt .=  "<td>" . htmlspecialchars($row["artNaam"] ?? '') . "</td>"; // Weergeven van artikelnaam
             $txt .=  "<td>" . htmlspecialchars($row["verkOrdDatum"] ?? '') . "</td>";
             $txt .=  "<td>" . htmlspecialchars($row["verkOrdBestAantal"] ?? '') . "</td>";
@@ -87,14 +92,14 @@ class Verkooporder extends Database {
             // Wijzig knopje
             $txt .=  "<td>";
             $txt .= "
-            <form method='post' action='update.php?orderId=" . htmlspecialchars($row["orderId"] ?? '') . "' >      
+            <form method='post' action='update.php?verkOrdId=" . htmlspecialchars($row["verkOrdId"] ?? '') . "' >      
                 <button name='update'>Wzg</button>    
             </form> </td>";
  
             // Verwijderen
             $txt .=  "<td>";
             $txt .= "
-            <form method='post' action='delete.php?orderId=" . htmlspecialchars($row["orderId"] ?? '') . "' >      
+            <form method='post' action='delete.php?verkOrdId=" . htmlspecialchars($row["verkOrdId"] ?? '') . "' >      
                 <button name='verwijderen'>Verwijderen</button>    
             </form> </td>";
             $txt .= "</tr>";
@@ -131,12 +136,12 @@ class Verkooporder extends Database {
     }
  
     /**
-     * Bepaal uniek orderId
+     * Bepaal uniek verkOrdId
      * @return int
      */
-    private function BepMaxOrderId() : int {
+    private function BepMaxverkOrdId() : int {
         // Bepaal uniek nummer
-        $sql = "SELECT MAX(orderId)+1 FROM $this->table_name";
+        $sql = "SELECT MAX(verkOrdId)+1 FROM $this->table_name";
         return (int) self::$conn->query($sql)->fetchColumn();
     }
    
@@ -150,18 +155,18 @@ class Verkooporder extends Database {
             // Begin een transactie
             self::$conn->beginTransaction();
  
-            // Bepaal een unieke orderId
-            $orderId = $this->BepMaxOrderId();
+            // Bepaal een unieke verkOrdId
+            $verkOrdId = $this->BepMaxverkOrdId();
            
             // SQL-query voor het invoegen van een nieuwe verkooporder
-            $sql = "INSERT INTO $this->table_name (orderId, orderDatum, klantId, orderStatus, orderTotaal)
-                    VALUES (:orderId, :orderDatum, :klantId, :orderStatus, :orderTotaal)";
+            $sql = "INSERT INTO $this->table_name (verkOrdId, orderDatum, klantId, orderStatus, orderTotaal)
+                    VALUES (:verkOrdId, :orderDatum, :klantId, :orderStatus, :orderTotaal)";
            
             // Bereid de query voor
             $stmt = self::$conn->prepare($sql);
            
             // Bind de parameters
-            $stmt->bindParam(':orderId', $orderId, PDO::PARAM_INT);
+            $stmt->bindParam(':verkOrdId', $verkOrdId, PDO::PARAM_INT);
             $stmt->bindParam(':orderDatum', $row['orderDatum'], PDO::PARAM_STR);
             $stmt->bindParam(':klantId', $row['klantId'], PDO::PARAM_INT);
             $stmt->bindParam(':orderStatus', $row['orderStatus'], PDO::PARAM_STR);
@@ -184,14 +189,15 @@ class Verkooporder extends Database {
  
     /**
      * Verwijder een verkooporder
-     * @param int $orderId
+     * @param int $verkOrdId
      * @return bool
      */
-    public function deleteVerkooporder(int $orderId) : bool {
+    public function deleteVerkooporder(int $verkOrdId) : bool {
         try {
-            $sql = "DELETE FROM $this->table_name WHERE orderId = :orderId";
+            // Pas hier de kolomnaam aan indien nodig
+            $sql = "DELETE FROM $this->table_name WHERE verkOrdId = :verkOrdId";
             $stmt = self::$conn->prepare($sql);
-            $stmt->bindParam(':orderId', $orderId, PDO::PARAM_INT);
+            $stmt->bindParam(':verkOrdId', $verkOrdId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
             echo "Fout: " . $e->getMessage();
@@ -201,20 +207,20 @@ class Verkooporder extends Database {
  
     /**
      * Update een verkooporder
-     * @param int $orderId
+     * @param int $verkOrdId
      * @param array $data
      * @return bool
      */
-    public function updateVerkooporder(int $orderId, array $data) : bool {
+    public function updateVerkooporder(int $verkOrdId, array $data) : bool {
         try {
-            $sql = "UPDATE $this->table_name SET klantId = :klantId, artId = :artId, verkOrdDatum = :verkOrdDatum, verkOrdBestAantal = :verkOrdBestAantal, verkOrdStatus = :verkOrdStatus WHERE orderId = :orderId";
+            $sql = "UPDATE $this->table_name SET klantId = :klantId, artId = :artId, verkOrdDatum = :verkOrdDatum, verkOrdBestAantal = :verkOrdBestAantal, verkOrdStatus = :verkOrdStatus WHERE verkOrdId = :verkOrdId";
             $stmt = self::$conn->prepare($sql);
             $stmt->bindParam(':klantId', $data['klantId'], PDO::PARAM_INT);
             $stmt->bindParam(':artId', $data['artId'], PDO::PARAM_INT);
             $stmt->bindParam(':verkOrdDatum', $data['verkOrdDatum'], PDO::PARAM_STR);
             $stmt->bindParam(':verkOrdBestAantal', $data['verkOrdBestAantal'], PDO::PARAM_INT);
             $stmt->bindParam(':verkOrdStatus', $data['verkOrdStatus'], PDO::PARAM_STR);
-            $stmt->bindParam(':orderId', $orderId, PDO::PARAM_INT);
+            $stmt->bindParam(':verkOrdId', $verkOrdId, PDO::PARAM_INT);
             return $stmt->execute();
         } catch (PDOException $e) {
             echo "Fout: " . $e->getMessage();

@@ -11,6 +11,7 @@
     <nav>
         <a href='../index.html'>Home</a><br>
         <a href='read.php'>Verkooporder Overzicht</a><br><br>
+   
     </nav>
     <?php
     require '../../vendor/autoload.php';
@@ -51,7 +52,7 @@
         <label for="klantId">Klant:</label>
         <select name="klantId" required>
             <?php foreach ($klanten as $kl) { ?>
-                <option value="<?php echo htmlspecialchars($kl['klantId']); ?>"><?php echo htmlspecialchars($kl['klantNaam']); ?></option>
+                <option value="<?php echo htmlspecialchars($kl['klantId']); ?>"><?php echo htmlspecialchars($kl['klantId']); ?></option>
             <?php } ?>
         </select><br>
         <label for="artId">Artikel:</label>
@@ -65,7 +66,12 @@
         <label for="verkOrdBestAantal">Besteld Aantal:</label>
         <input type="number" name="verkOrdBestAantal" required><br>
         <label for="verkOrdStatus">Order Status:</label>
-        <input type="text" name="verkOrdStatus" required><br>
+        <select name="verkOrdStatus" required>
+            <option value="In behandeling">In behandeling</option>
+            <option value="Verzonden">Verzonden</option>
+            <option value="Afgeleverd">Afgeleverd</option>
+            <option value="Geannuleerd">Geannuleerd</option>
+        </select><br>
         <input type="submit" name="submit" value="Plaatsen">
     </form>
 </body>

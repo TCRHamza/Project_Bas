@@ -5,9 +5,6 @@ namespace Bas\classes;
 
 use PDO;
 use PDOException;
-use Bas\classes\Database;
-
-
 
 include_once "functions.php";
 
@@ -20,6 +17,11 @@ class Klant extends Database {
     public $klantPostcode;
     private $table_name = "Klant";   
 
+    // Method to set the database connection
+    public function setConnection($conn) {
+        self::$conn = $conn;
+    }
+    
     // Methods
     
     /**
@@ -95,6 +97,11 @@ class Klant extends Database {
      * @return void
      */
     public function showTable(array $lijst) : void {
+        if (empty($lijst)) {
+            echo "<p>Geen resultaten gevonden.</p>";
+            return;
+        }
+
         $txt = "<table>";
 
         // Voeg de kolomnamen boven de tabel
@@ -137,14 +144,28 @@ class Klant extends Database {
      */
     public function deleteKlant(int $klantId) : bool {
         try {
-            // Doe een delete-query op basis van $klantId
-            $sql = "DELETE FROM $this->table_name WHERE klantId = :klantId";
-            $stmt = self::$conn->prepare($sql);
-            $stmt->bindParam(':klantId', $klantId, PDO::PARAM_INT);
-            $stmt->execute();
+            // Begin a transaction
+            self::$conn->beginTransaction();
+
+            // Delete associated rows in verkooporder
+            $sqlVerkooporder = "DELETE FROM verkooporder WHERE klantId = :klantId";
+            $stmtVerkooporder = self::$conn->prepare($sqlVerkooporder);
+            $stmtVerkooporder->bindParam(':klantId', $klantId, PDO::PARAM_INT);
+            $stmtVerkooporder->execute();
+
+            // Delete the klant
+            $sqlKlant = "DELETE FROM $this->table_name WHERE klantId = :klantId";
+            $stmtKlant = self::$conn->prepare($sqlKlant);
+            $stmtKlant->bindParam(':klantId', $klantId, PDO::PARAM_INT);
+            $stmtKlant->execute();
+
+            // Commit the transaction
+            self::$conn->commit();
             
             return true;
         } catch (PDOException $e) {
+            // Rollback the transaction on error
+            self::$conn->rollBack();
             echo "Error: " . $e->getMessage();
             return false;
         }
@@ -192,6 +213,7 @@ class Klant extends Database {
             self::$conn->beginTransaction();
 
             // Bepaal een unieke klantId
+           
             $klantId = $this->BepMaxKlantId();
             
             // SQL-query voor het invoegen van een nieuwe klant
@@ -221,6 +243,26 @@ class Klant extends Database {
             self::$conn->rollBack();
             echo "Error: " . $e->getMessage();
             return false; // Fout bij het invoegen
+        }
+    }
+
+    /**
+     * Summary of searchKlanten
+     * Zoek klanten op basis van klantNaam
+     * @param string $klantNaam
+     * @return array
+     */
+    public function searchKlanten(string $klantNaam) : array {
+        try {
+            $sql = "SELECT * FROM $this->table_name WHERE klantNaam LIKE :klantNaam";
+            $stmt = self::$conn->prepare($sql);
+            $naam = '%' . $klantNaam . '%';
+            $stmt->bindParam(':klantNaam', $naam, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return [];
         }
     }
 }

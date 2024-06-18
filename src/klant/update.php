@@ -1,13 +1,21 @@
 <?php
-    // auteur: hmidoush
-    // functie: update class Klant
+// Autoloader classes via composer
+require '../../vendor/autoload.php';
+use Bas\classes\Klant;
 
-    // Autoloader classes via composer
-    require '../../vendor/autoload.php';
-    use Bas\classes\Klant;
-    
-    $klant = new Klant;
+$dsn = 'mysql:host=localhost;dbname=bas';
+$username = 'gebruikersnaam'; // Vervang dit met je eigen gebruikersnaam
+$password = 'wachtwoord';     // Vervang dit met je eigen wachtwoord
 
+try {
+    // Maak een nieuwe PDO-verbinding
+    $pdo = new PDO($dsn, $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Maak een nieuwe Klant object
+    $klant = new Klant($pdo);
+
+    // Rest van je code hieronder
     if(isset($_POST["update"]) && $_POST["update"] == "Wijzigen"){
 
         // Code voor een update
@@ -24,7 +32,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crud</title>
+    <title>CRUD</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -49,4 +57,8 @@
     } else {
         echo "Geen klantId opgegeven<br>";
     }
+} catch(PDOException $e) {
+    // Vang eventuele fouten op bij het maken van de PDO-verbinding
+    echo "Connection failed: " . $e->getMessage();
+}
 ?>

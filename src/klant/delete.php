@@ -1,23 +1,24 @@
-<?php 
-// auteur: Hmidoush
-// functie: 
+<?php
+// Include de benodigde klassen
+include_once __DIR__ . '/../classes/Database.php';
+include_once __DIR__ . '/../classes/Klant.php';
 
-// Autoloader classes via composer
-require '../../vendor/autoload.php';
-use Bas\classes\Klant;
+if (isset($_GET['klantId'])) {
+    $klantId = $_GET['klantId'];
 
-if(isset($_POST["verwijderen"])){
-	
-	// Maak een object Klant
-	
-	
-	// Delete Klant op basis van NR
-	
+    // Maak verbinding met de database
+    $db = new \Bas\classes\Database();
+    $conn = $db->getConnection();
 
-	echo '<script>alert("Klant verwijderd")</script>';
-	echo "<script> location.replace('read.php'); </script>";
+    // Maak een nieuw Klant object en stel de verbinding in
+    $klant = new \Bas\classes\Klant();
+    $klant->setConnection($conn);
+
+    // Verwijder de klant
+    if ($klant->deleteKlant((int)$klantId)) {
+        echo "Klant succesvol verwijderd.";
+    } else {
+        echo "Er is een fout opgetreden bij het verwijderen van de klant.";
+    }
 }
 ?>
-
-
-
